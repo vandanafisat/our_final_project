@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django import forms
 import datetime
-from models import Approval,Source
+from myapp.models import Approval,Source
 import xlrd
 import io
 import xlwt
@@ -144,7 +144,7 @@ def upload(request):
 
                     approval.save()
                # do what you have to do
-                
+
             else:
                 for x in xrange(1,row_count):
                     source=Source(RGS_ID= Approval.objects.get(RGS_ID=worksheet.cell(x, 0).value),
@@ -171,8 +171,8 @@ def upload(request):
                         current_ctc = worksheet.cell(x, 21).value,
                         exp_ctc = worksheet.cell(x, 22).value,
                         notice_period = worksheet.cell(x, 23).value)
-                    
-                    source.save()  
+
+                    source.save()
         appr = Approval.objects.all()
         sou = Source.objects.all()
         return render(
@@ -183,7 +183,7 @@ def upload(request):
             'form1':form1,
             'form2':form2,
             'approvals': appr,
-    
+
             'sources': sou})
 
     elif request.method == "GET":
@@ -278,7 +278,7 @@ def applicant(request):
                 s.exp_ctc = request.POST.get('W')
                 s.notice_period = request.POST.get('X')
                 s.save()
-            
+
             else:
                 source = Source(RGS_ID= Approval.objects.get(RGS_ID=request.POST.get('A')),
                     DOT=request.POST.get('B'),
@@ -354,7 +354,7 @@ def applicant(request):
                 approvals.c1_name = '-'
                 approvals.save()
             approvals.No_offers_processed = offerscount
-            approvals.save() 
+            approvals.save()
 
     elif request.method == "GET":
         form2 = ManifiestosForm1(request.POST)
@@ -394,7 +394,6 @@ def download(request):
         TRcount=0
         MRcount=0
         HRcount=0
-        flag =0
         sources = Source.objects.filter(RGS_ID=x.RGS_ID)
         for y in sources:
             count=count+1
@@ -404,7 +403,6 @@ def download(request):
                 HRcount=HRcount+1
             if y.MR_status == 'Yes':
                 MRcount=MRcount+1
-
         x.no_cv_shared = count
         x.TR_selects_holds = TRcount
         x.TR_rejects = count - TRcount
@@ -415,111 +413,111 @@ def download(request):
         x.save()
 
 
-	output = io.BytesIO()
-	
-	workbook = Workbook(output,{'in_memory': True})
-	workbook = Workbook(output, {'remove_timezone': True})
-	format = workbook.add_format()
-	format1 = workbook.add_format()
-	date_format = workbook.add_format({'num_format': 'dd/mm/yy'})
+    output = io.BytesIO()
+
+    workbook = Workbook(output,{'in_memory': True})
+    workbook = Workbook(output, {'remove_timezone': True})
+    format = workbook.add_format()
+    format1 = workbook.add_format()
+    date_format = workbook.add_format({'num_format': 'dd/mm/yy'})
 
     #format.set_pattern(1)  # This is optional when using a solid fill.
-	format.set_fg_color('#99FFFF')
-	format.set_bold()
-	format.set_text_wrap()
-	format.set_border(style=1)
-	format1.set_fg_color('#9DC3E5')
-	format1.set_text_wrap()
-	format1.set_border(style=1)
+    format.set_fg_color('#99FFFF')
+    format.set_bold()
+    format.set_text_wrap()
+    format.set_border(style=1)
+    format1.set_fg_color('#9DC3E5')
+    format1.set_text_wrap()
+    format1.set_border(style=1)
 
-	worksheet = workbook.add_worksheet()
+    worksheet = workbook.add_worksheet()
 
-	worksheet.write(0, 0, 'RGS ID',format)
-	worksheet.write(0, 1, 'RGS ID Status',format)
-	worksheet.write(0, 2, 'Role',format)
-	worksheet.write(0, 3, 'Required Skill Set',format)
-	worksheet.write(0, 4, 'Total Experience',format)
-	worksheet.write(0, 5, 'Branch',format)
-	worksheet.write(0, 6, 'IOU',format)
-	worksheet.write(0, 7, 'Requirement IOU',format)
-	worksheet.write(0, 8, 'Customer Name',format)
-	worksheet.write(0, 9, 'Assigned Date',format)
-	worksheet.write(0, 10, 'Requirement Branch',format)
-	worksheet.write(0, 11, 'Staffing Branch',format)
+    worksheet.write(0, 0, 'RGS ID',format)
+    worksheet.write(0, 1, 'RGS ID Status',format)
+    worksheet.write(0, 2, 'Role',format)
+    worksheet.write(0, 3, 'Required Skill Set',format)
+    worksheet.write(0, 4, 'Total Experience',format)
+    worksheet.write(0, 5, 'Branch',format)
+    worksheet.write(0, 6, 'IOU',format)
+    worksheet.write(0, 7, 'Requirement IOU',format)
+    worksheet.write(0, 8, 'Customer Name',format)
+    worksheet.write(0, 9, 'Assigned Date',format)
+    worksheet.write(0, 10, 'Requiremnet Branch',format)
+    worksheet.write(0, 11, 'Staffing Branch',format)
 
-	worksheet.write(0, 12, 'Recruiter',format1)
-	worksheet.write(0, 13, 'Remarks',format1)
-	worksheet.write(0, 14, 'Status',format1)
-	worksheet.write(0, 15, 'No. of CVs shared',format1)
-	worksheet.write(0, 16, 'Feedback Pending',format1)
-	worksheet.write(0, 17, 'Screening Rejects/others',format1)
-	worksheet.write(0, 18, 'Shortlist',format1)
-	worksheet.write(0, 19, 'TR Selects/ Hold',format1)
-	worksheet.write(0, 20, 'TR Rejects',format1)
-	worksheet.write(0, 21, 'MR Selects/ Hold',format1)
-	worksheet.write(0, 22, 'MR Rejects',format1)
-	worksheet.write(0, 23, 'HR Selects/ HR Hold',format1)
-	worksheet.write(0, 24, 'HR Rejects',format1)
-	worksheet.write(0, 25, 'No. of Offers In Process',format1)
-	worksheet.write(0, 26, 'No. of Offers Released',format1)
-	worksheet.write(0, 27, 'Candidate 1 EP No.',format1)
-	worksheet.write(0, 28, 'Candidate 1 Name',format1)
-	worksheet.write(0, 29, 'Joining status',format1)
-	worksheet.write(0, 30, 'DOJ',format1)
-	worksheet.write(0, 31, 'Candidate 2 EP No.',format1)
-	worksheet.write(0, 32, 'Candidate 2 Name',format1)
-	worksheet.write(0, 33, 'Joining status',format1)
-	worksheet.write(0, 34, 'DOJ',format1)
+    worksheet.write(0, 12, 'Recruiter',format1)
+    worksheet.write(0, 13, 'Remarks',format1)
+    worksheet.write(0, 14, 'Status',format1)
+    worksheet.write(0, 15, 'No. of CVs shared',format1)
+    worksheet.write(0, 16, 'Feedback Pending',format1)
+    worksheet.write(0, 17, 'Screening Rejects/others',format1)
+    worksheet.write(0, 18, 'Shortlist',format1)
+    worksheet.write(0, 19, 'TR Selects/ Hold',format1)
+    worksheet.write(0, 20, 'TR Rejects',format1)
+    worksheet.write(0, 21, 'MR Selects/ Hold',format1)
+    worksheet.write(0, 22, 'MR Rejects',format1)
+    worksheet.write(0, 23, 'HR Selects/ HR Hold',format1)
+    worksheet.write(0, 24, 'HR Rejects',format1)
+    worksheet.write(0, 25, 'No. of Offers In Process',format1)
+    worksheet.write(0, 26, 'No. of Offers Released',format1)
+    worksheet.write(0, 27, 'Candidate 1 EP No.',format1)
+    worksheet.write(0, 28, 'Candidate 1 Name',format1)
+    worksheet.write(0, 29, 'Joining status',format1)
+    worksheet.write(0, 30, 'DOJ',format1)
+    worksheet.write(0, 31, 'Candidate 2 EP No.',format1)
+    worksheet.write(0, 32, 'Candidate 2 Name',format1)
+    worksheet.write(0, 33, 'Joining status',format1)
+    worksheet.write(0, 34, 'DOJ',format1)
 
-	approvals = Approval.objects.all()
-	count=1
-	for x in approvals:
-		worksheet.write(count,0,x.RGS_ID)
-		worksheet.write(count,1,x.RGS_status)
-		worksheet.write(count,2,x.role)
-		worksheet.write(count,3,x.rqd_skset)
-		worksheet.write(count,4,x.tot_exp)
-		worksheet.write(count,5,x.branch)
-		worksheet.write(count,6,x.IOU)
-		worksheet.write(count,7,x.req_IOU)
-		worksheet.write(count,8,x.cust_name)
-		worksheet.write_datetime(count,9,x.ass_date,date_format)
-		worksheet.write(count,10,x.req_branch)
-		worksheet.write(count,11,x.staff_branch)
-		worksheet.write(count,12,x.recruiter)
-		worksheet.write(count,13,x.remarks)
-		worksheet.write(count,14,x.status)
-		worksheet.write(count,15,x.no_cv_shared)
-		worksheet.write(count,16,x.feedback_pending)
-		worksheet.write(count,17,x.screen_rejects_others)
-		worksheet.write(count,18,x.shortlists)
-		worksheet.write(count,19,x.TR_selects_holds)
-		worksheet.write(count,20,x.TR_rejects)
-		worksheet.write(count,21,x.MR_selects_holds)
-		worksheet.write(count,22,x.MR_rejects)
-		worksheet.write(count,23,x.HR_selects_holds)
-		worksheet.write(count,24,x.HR_rejects)
-		worksheet.write(count,25,x.No_offers_processed)
-		worksheet.write(count,26,x.No_offers_released)
-		worksheet.write(count,27,x.c1_epno)
-		worksheet.write(count,28,x.c1_name)
-		worksheet.write(count,29,x.c1_joining_status)
-		#worksheet.write_datetime(count,30,x.c1_DOJ,date_format)
-		worksheet.write(count,31,x.c2_epno)
-		worksheet.write(count,32,x.c2_name)
-		worksheet.write(count,33,x.c2_joining_status)
-		#worksheet.write_datetime(count,34,x.c1_DOJ,date_format)
+    approvals = Approval.objects.all()
+    count=1
+    for x in approvals:
+        worksheet.write(count,0,x.RGS_ID)
+        worksheet.write(count,1,x.RGS_status)
+        worksheet.write(count,2,x.role)
+        worksheet.write(count,3,x.rqd_skset)
+        worksheet.write(count,4,x.tot_exp)
+        worksheet.write(count,5,x.branch)
+        worksheet.write(count,6,x.IOU)
+        worksheet.write(count,7,x.req_IOU)
+        worksheet.write(count,8,x.cust_name)
+        worksheet.write_datetime(count,9,x.ass_date,date_format)
+        worksheet.write(count,10,x.req_branch)
+        worksheet.write(count,11,x.staff_branch)
+        worksheet.write(count,12,x.recruiter)
+        worksheet.write(count,13,x.remarks)
+        worksheet.write(count,14,x.status)
+        worksheet.write(count,15,x.no_cv_shared)
+        worksheet.write(count,16,x.feedback_pending)
+        worksheet.write(count,17,x.screen_rejects_others)
+        worksheet.write(count,18,x.shortlists)
+        worksheet.write(count,19,x.TR_selects_holds)
+        worksheet.write(count,20,x.TR_rejects)
+        worksheet.write(count,21,x.MR_selects_holds)
+        worksheet.write(count,22,x.TR_rejects)
+        worksheet.write(count,23,x.HR_selects_holds)
+        worksheet.write(count,24,x.TR_rejects)
+        worksheet.write(count,25,x.No_offers_processed)
+        worksheet.write(count,26,x.No_offers_released)
+        worksheet.write(count,27,x.c1_epno)
+        worksheet.write(count,28,x.c1_name)
+        worksheet.write(count,29,x.c1_joining_status)
+        worksheet.write(count,31,x.c2_epno)
+        worksheet.write(count,32,x.c2_name)
+        worksheet.write(count,33,x.c2_joining_status)
 
-		count = count +1
+        count = count +1
+        if x.c1_epno!='-':
+            worksheet.write_datetime(count-1,30,x.c1_DOJ,date_format)
+        if x.c2_epno!='-':
+            worksheet.write_datetime(count-1,34,x.c2_DOJ,date_format)
     worksheet.set_column('A:AI',20)
-    
+
     workbook.close()
-    
+
     output.seek(0)
 
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename=Approval Master Sheet.xlsx"
 
     return response
-
-    

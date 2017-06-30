@@ -37,11 +37,11 @@ class Approval(models.Model):
     c1_epno= models.CharField(max_length=200,default='-')
     c1_name= models.CharField(max_length=200,default='-')
     c1_joining_status= models.CharField(max_length=200,default='-')
-    c1_DOJ= models.CharField(max_length=200,default='-')
+    c1_DOJ= models.DateTimeField(default=datetime.datetime.now)
     c2_epno= models.CharField(max_length=200,default='-')
     c2_name= models.CharField(max_length=200,default='-')
     c2_joining_status= models.CharField(max_length=200,default='-')
-    c2_DOJ= models.CharField(max_length=200,default='-')
+    c2_DOJ= models.DateTimeField(default=datetime.datetime.now)
     
     def __str__(self):
         return self.RGS_ID
